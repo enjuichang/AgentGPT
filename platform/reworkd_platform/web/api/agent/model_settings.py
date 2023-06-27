@@ -1,43 +1,44 @@
-from random import randint
-from typing import Optional
-
 import openai
 from langchain.chat_models import ChatOpenAI
-from pydantic import BaseModel
 
+from reworkd_platform.schemas import LLM_Model, ModelSettings, UserBase
 from reworkd_platform.settings import settings
-
-
-class ModelSettings(BaseModel):
-    customModelName: Optional[str] = None
-    customTemperature: Optional[float] = None
-    customMaxLoops: Optional[int] = None
-    maxTokens: Optional[int] = None
-
-
-def get_server_side_key() -> str:
-    keys = [
-        key.strip() for key in (settings.openai_api_key or "").split(",") if key.strip()
-    ]
-    return keys[randint(0, len(keys) - 1)] if keys else ""
-
-
-GPT_35_TURBO = "gpt-3.5-turbo"
+from reworkd_platform.web.api.agent.api_utils import rotate_keys
 
 openai.api_base = settings.openai_api_base
 
 
-def create_model(model_settings: Optional[ModelSettings]) -> ChatOpenAI:
-    return ChatOpenAI(
+class WrappedChatOpenAI(ChatOpenAI):
+    max_tokens: int
+
+
+def create_model(
+    model_settings: ModelSettings, user: UserBase, streaming: bool = False
+) -> WrappedChatOpenAI:
+    if model_settings.custom_api_key != "":
+        api_key = model_settings.custom_api_key
+    else:
+        api_key = rotate_keys(
+            gpt_3_key=settings.openai_api_key,
+            gpt_4_key=settings.secondary_openai_api_key,
+            model=model_settings.model,
+        )
+
+    return WrappedChatOpenAI(
         client=None,  # Meta private value but mypy will complain its missing
-        openai_api_key=get_server_side_key(),
-        temperature=model_settings.customTemperature
-        if model_settings and model_settings.customTemperature is not None
-        else 0.9,
-        model_name=model_settings.customModelName
-        if model_settings and model_settings.customModelName is not None
-        else GPT_35_TURBO,
-        max_tokens=model_settings.maxTokens
-        if model_settings and model_settings.maxTokens is not None
-        else 400,
+        openai_api_key=api_key,
+        temperature=model_settings.temperature,
+        model=get_model_name(model_settings.model),
+        max_tokens=model_settings.max_tokens,
+        streaming=streaming,
+        max_retries=5,
+        model_kwargs={"user": user.email},
     )
+
+
+def get_model_name(model_str: LLM_Model) -> str:
+    if model_str == "gpt-4":
+        return "gpt-4-0613"
+    if model_str == "gpt-3.5-turbo":
+        return "gpt-3.5-turbo-0613"
+    return model_str

@@ -27,7 +27,10 @@ When this does work, we'll be sure to validate that an action like "sending an e
 <details>
 <summary>My agent keeps running out of loops!</summary>
 We must limit how much the Agent runs in some capacity due to API and infrastructure costs 😢.
-If you provide your own API key you can increase the number of loops your Agent goes through within the advanced settings of the settings menu.
+
+To circumvent this, you can visit our <a href="/roadmap">setup documentation</a> and host AgentGPT locally using your
+own API key.
+Alternatively, you can subscribe to our pro plan to increase limits.
 </details>
 
 <details>
@@ -53,7 +56,7 @@ If you provide your own API key, you can increase the output length within the a
 
 <details>
 <summary>What is the difference between this and ChatGPT?</summary>
-ChatGPT is a great tool that will allow you to ask a specific question and receive a result. It also follows a conversation, so after you have received a response, you can continue talking to it and it will remember (within limits) what was descussed previously.
+ChatGPT is a great tool that will allow you to ask a specific question and receive a result. It also follows a conversation, so after you have received a response, you can continue talking to it and it will remember (within limits) what was discussed previously.
 
 AgentGPT on the otherhand is a platform for AI agents. You configure an agent to accomplish a broad goal, and it will
 automatically think and perform tasks to achieve it.
@@ -71,7 +74,7 @@ AgentGPT can do a lot, but we're also working on giving it a lot more capabiliti
 
 <details>
 <summary>Does AgentGPT have access to the internet?</summary>
-Not yet but this is coming very soon! Keep an eye on our <a href="/roadmap">roadmap</a>.
+Yes it can 🌐!
 </details>
 
 ### Local contribution issues
